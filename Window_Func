@@ -1,0 +1,85 @@
+use subquerydb;
+select * from employees;
+
+-- window functions
+select emp_id,name,salary,avg(salary) over() from employees;
+
+select emp_id,name,salary,max(salary) over(),
+avg(salary) over() from employees;
+
+select emp_id,name,salary,max(salary) over(), salary-avg(salary) over()
+from employees;
+
+select emp_id,name,salary,count(*) over(),max(salary) over(),min(salary) over(),
+avg(salary) over() from employees;
+
+select emp_id,name,salary,sum(salary) over(),
+concat(round(salary/sum(salary) over()*100),'%')from employees;
+
+select emp_id,name,salary,sum(salary) over(order by salary) from employees;
+
+select emp_id,name,department,salary,sum(salary) over(order by emp_id desc)
+from employees;
+
+select emp_id,name,department,salary,sum(salary) over(order by department)
+from employees;
+
+-- partition by 
+select * from employees;
+
+select *,sum(salary) over(partition by department),
+sum(salary) over() from employees;
+
+select *,sum(salary) over(partition by name)
+from employees;
+
+select *,sum(salary) over(partition by manager_id)
+from employees;
+
+select *,sum(salary) over(partition by department order by salary)
+from employees;
+
+select name,department,salary,sum(salary) over(partition by name),
+(salary / sum(salary) over(partition by namme))*100 from employees;
+
+
+========================================================================================
+
+create database rjdb;
+
+use rjdb;
+
+CREATE TABLE sales (
+    id INT,
+    sale_date DATE,
+    amount INT
+);
+
+
+INSERT INTO sales VALUES
+(1, '2026-01-01', 100),
+(2, '2026-01-02', 200),
+(3, '2026-01-03', 300),
+(4, '2026-01-04', 400),
+(5, '2026-01-05', 500);
+
+select * from sales;
+
+select *, lag(sale_date,2) over() from sales;
+
+select *, lead(sale_date,1) over() from sales;
+
+select *, lead(sale_date,1) over(order by amount desc) from sales;
+
+-- rows between 
+select *, sum(amount) over(rows between unbounded preceding and current row)
+from sales;
+
+select *, sum(amount) over(rows between 2 preceding and current row)
+from sales;
+
+select *, sum(amount) over(rows between unbounded preceding and 1 following)
+from sales;
+
+select id,sale_date,amount,sum(amount) over(order by sale_date rows between
+current row and 1 following) as current__next_sum from sales;
